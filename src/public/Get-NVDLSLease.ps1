@@ -5,8 +5,14 @@
     .DESCRIPTION
     Retrieves NVIDIA DLS service instance lease(s).
 
+    .PARAMETER Server
+    Specifies the NVIDIA DLS service instance.    
+
     .EXAMPLE
-    Get-NVIDIADLSServiceInstanceLease -Server 'nls.fqdn'
+    Get-NVDLSLease
+
+    .EXAMPLE
+    Get-NVDLSLease -Server 'dls.fqdn'
 
     .NOTES
     Tested on NVIDIA DLS 3.5.0.
@@ -14,14 +20,15 @@
         * Pagination.
         
     .OUTPUTS
-    None.
+    [PSCustomObject].
 
     .LINK
     https://ui.licensing.nvidia.com/api-doc/dls-api-docs.html
 #>
 
-function Get-NVIDIADLSServiceInstanceLease {
+function Get-NVDLSLease {
     [CmdletBinding()]
+    [OutputType([PSCustomObject])]
     param (
         [Parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
@@ -36,17 +43,13 @@ function Get-NVIDIADLSServiceInstanceLease {
                 $splat.Add('Server', $Server)
             }
 
-            $connection = Get-ServerConnection @splat
-
-            if ($connection.SkipCertificateCheck -eq $true) {
-                $splat.Add('SkipCertificateCheck', $true)
-            }            
+            $connection = Get-NVDLSConnection @splat
 
             $headers = @{
                 'Authorization' = ('Bearer {0}' -f $connection.token)
             }
 
-            $serviceInstanceUser = Get-NVIDIADLSServiceInstanceUser
+            $serviceInstanceUser = Get-NVDLSUser @splat
 
             $virtualGroupId = $serviceInstanceUser.userScope.virtualGroupId
             $licenseServerId = $serviceInstanceUser.userScope.licenseServerId
@@ -61,7 +64,7 @@ function Get-NVIDIADLSServiceInstanceLease {
         try {
             $uri = ('https://{0}/admin/v1/org/{1}/virtual-groups/{2}/leases/all?license_server_ids={3}' -f $connection.Server, $orgName, $virtualGroupId, $licenseServerId)
 
-            $response = Invoke-RestMethod -Method Get -Uri $uri -Headers $headers @splat
+            $response = Invoke-RestMethod -Method Get -Uri $uri -Headers $headers
 
             if ($null -eq $response) {
                 throw $_

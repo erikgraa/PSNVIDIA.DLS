@@ -5,14 +5,38 @@
     .DESCRIPTION
     Generates a new NVIDIA DLS client configuration token.
 
-    .EXAMPLE
-    New-NVIDIADLSClientConfigurationToken -Server 'nls.fqdn' -PassThru
+    .PARAMETER Server
+    Specifies the NVIDIA DLS service instance.
+
+    .PARAMETER Path
+    Specifies the path to save the client configuration token. Defaults to the working directory.
+
+    .PARAMETER ScopeReferenceList
+    Specifies the scope reference ID. Defaults to the service instance's scope reference id.
+
+    .PARAMETER NodeId
+    Specifies the node id. Defaults to the service instance's node id.
+
+    .PARAMETER AddressType
+    Specifies the address type. Defaults to IPV4. Valid options are IPV4 and FQDN.
+
+    .PARAMETER LeasingPort
+    Specifies the leasing port. Defaults to 443. Valid options are 443 and 8082.
+
+    .PARAMETER Expiry
+    Specifies the client configuration token expiry date.
+
+    .PARAMETER PassThru
+    Specifies that the client configuration token file will be passed thru as a System.IO.FileInfo object.
 
     .EXAMPLE
-    New-NVIDIADLSClientConfigurationToken -Server 'nls.fqdn' -Expiry (Get-Date).AddMonths(3)
+    New-NVDLSClientConfigurationToken -Server 'dls.fqdn' -PassThru
+
+    .EXAMPLE
+    New-NVDLSClientConfigurationToken -Server 'dls.fqdn' -Expiry (Get-Date).AddMonths(3)
     
     .EXAMPLE
-    New-NVIDIADLSClientConfigurationToken -Server 'nls.fqdn' -AddressType FQDN
+    New-NVDLSClientConfigurationToken -Server 'dls.fqdn' -AddressType FQDN
 
     .NOTES
     Tested on NVIDIA DLS 3.5.0.
@@ -25,7 +49,7 @@
     https://ui.licensing.nvidia.com/api-doc/dls-api-docs.html
 #>
 
-function New-NVIDIADLSClientConfigurationToken {
+function New-NVDLSClientConfigurationToken {
     [CmdletBinding()]
     [OutputType([Void],[System.IO.FileInfo])]
     param (
@@ -55,7 +79,7 @@ function New-NVIDIADLSClientConfigurationToken {
 
         [Parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
-        [DateTime]$Expiry = [DateTime]::Now.AddDays(30),    
+        [DateTime]$Expiry,
 
         [Parameter(Mandatory = $false)]
         [Switch]$PassThru
@@ -79,11 +103,7 @@ function New-NVIDIADLSClientConfigurationToken {
                 $splat.Add('Server', $Server)
             }
 
-            $connection = Get-ServerConnection @splat
-
-            if ($connection.SkipCertificateCheck -eq $true) {
-                $splat.Add('SkipCertificateCheck', $true)
-            }            
+            $connection = Get-NVDLSConnection @splat        
 
             $headers = @{
                 'Authorization' = ('Bearer {0}' -f $connection.token)
@@ -92,12 +112,12 @@ function New-NVIDIADLSClientConfigurationToken {
             }
 
             if (-not($PSBoundParameters.ContainsKey('ScopeReferenceList'))) {
-                $licenseServer = Get-NVIDIADLSLicenseServer
-                $ScopeReferenceList = @($licenseServer.licenseServer.scopeReference)
+                $licenseServer = Get-NVDLSLicenseServer @splat
+                $ScopeReferenceList = @($licenseServer.scopeReference)
             }
 
             if (-not($PSBoundParameters.ContainsKey('NodeId'))) {
-                $serviceInstance = Get-NVIDIADLSServiceInstance @splat
+                $serviceInstance = Get-NVDLSInstance @splat
                 $NodeId = $serviceInstance.high_availability_config.config.nodeList.node_id
             }
 
@@ -119,15 +139,20 @@ function New-NVIDIADLSClientConfigurationToken {
                 'address' = $address
             }
 
-            $expiryShort = Get-Date -Date $Expiry -Format 'yyyy-MM-dd'
-
             $body = @{
                 'scopeReferenceList' = $ScopeReferenceList
                 'fulfillmentClassReferenceList' = @()
                 'addressTypeSelections' = @($addressTypeSelections)
-                'expiry' = $expiryShort
                 'leasingPort' = $LeasingPort
-            } | ConvertTo-Json -Compress
+            }
+
+            if ($PSBoundParameters.ContainsKey('Expiry')) {
+                $expiryShort = Get-Date -Date $Expiry -Format 'yyyy-MM-dd'
+
+                $body.Add('expiry', $expiryShort)
+            }            
+            
+            $body = $body | ConvertTo-Json -Compress
         }
         catch {
             throw $_
@@ -138,7 +163,7 @@ function New-NVIDIADLSClientConfigurationToken {
         try {
             $uri = ('https://{0}/service_instance_manager/v1/service-instance/compose-messenger-token' -f $connection.Server)
 
-            $response = Invoke-RestMethod -Method Post -Uri $uri -Headers $headers -Body $body @splat
+            $response = Invoke-RestMethod -Method Post -Uri $uri -Headers $headers -Body $body
 
             if ($null -eq $response) {
                 throw $_

@@ -9,7 +9,7 @@
 @{
     RootModule = 'PSNVIDIA.DLS.psm1'
 
-    ModuleVersion = '0.2505.1'
+    ModuleVersion = '0.2505.2'
 
     CompatiblePSEditions = @('Core')
 
@@ -23,9 +23,8 @@
 
     PowerShellVersion = '7.4'
 
-    FunctionsToExport = @('Connect-NVIDIADLSServiceInstance', 'Disconnect-NVIDIADLSServiceInstance', 'Get-NVIDIADLSServiceInstanceLease', 
-                        'Get-NVIDIADLSLicenseServer', 'Get-NVIDIADLSServiceInstanceUser', 'Get-NVIDIADLSServiceInstance', 
-                        'New-NVIDIADLSClientConfigurationToken')
+    FunctionsToExport = @('Connect-NVDLS', 'Disconnect-NVDLS', 'Get-NVDLSInstance', 'Get-NVDLSLease'
+                        'Get-NVDLSUser', 'Get-NVDLSLicenseServer', 'New-NVDLSClientConfigurationToken')
 
     PrivateData = @{
         PSData = @{

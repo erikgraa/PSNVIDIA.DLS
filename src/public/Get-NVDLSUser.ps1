@@ -5,21 +5,28 @@
     .DESCRIPTION
     Retrieves logged in NVIDIA DLS service instance user.
 
+    .PARAMETER Server
+    Specifies the NVIDIA DLS service instance.    
+
     .EXAMPLE
-    Get-NVIDIADLSServiceInstanceUser -Server 'nls.fqdn'
+    Get-NVDLSUser    
+
+    .EXAMPLE
+    Get-NVDLSUser -Server 'dls.fqdn'
 
     .NOTES
     Tested on NVIDIA DLS 3.5.0.
 
     .OUTPUTS
-    None.
+    [PSCustomObject].
 
     .LINK
     https://ui.licensing.nvidia.com/api-doc/dls-api-docs.html
 #>
 
-function Get-NVIDIADLSServiceInstanceUser {
+function Get-NVDLSUser {
     [CmdletBinding()]
+    [OutputType([PSCustomObject])]    
     param (
         [Parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
@@ -34,13 +41,9 @@ function Get-NVIDIADLSServiceInstanceUser {
                 $splat.Add('Server', $Server)
             }
 
-            $connection = Get-ServerConnection @splat -ErrorAction Stop
+            $connection = Get-NVDLSConnection @splat
 
-            if ($connection.SkipCertificateCheck -eq $true) {
-                $splat.Add('SkipCertificateCheck', $true)
-            }            
-
-            $script:headers = @{
+            $headers = @{
                 'Authorization' = ('Bearer {0}' -f $connection.token)
             }
         }
@@ -53,7 +56,7 @@ function Get-NVIDIADLSServiceInstanceUser {
         try {
             $uri = ('https://{0}/auth/v1/user/me' -f $connection.Server)
 
-            $response = Invoke-RestMethod -Method Get -Uri $uri -Headers $headers @splat
+            $response = Invoke-RestMethod -Method Get -Uri $uri -Headers $headers
 
             if ($null -eq $response) {
                 throw $_
@@ -66,7 +69,5 @@ function Get-NVIDIADLSServiceInstanceUser {
         }
     }
 
-    end {
-        
-    }    
+    end { }    
 }

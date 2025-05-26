@@ -5,21 +5,28 @@
     .DESCRIPTION
     Retrieves NVIDIA DLS service instance details.
 
+    .PARAMETER Server
+    Specifies the NVIDIA DLS service instance.    
+
     .EXAMPLE
-    Get-NVIDIADLSServiceInstance -Server 'nls.fqdn'
+    Get-NVDLSInstance    
+
+    .EXAMPLE
+    Get-NVDLSInstance -Server 'dls.fqdn'
 
     .NOTES
     Tested on NVIDIA DLS 3.5.0.
 
     .OUTPUTS
-    None.
+    [PSCustomObject].
 
     .LINK
     https://ui.licensing.nvidia.com/api-doc/dls-api-docs.html
 #>
 
-function Get-NVIDIADLSServiceInstance {
+function Get-NVDLSInstance {
     [CmdletBinding()]
+    [OutputType([PSCustomObject])]
     param (
         [Parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
@@ -34,11 +41,7 @@ function Get-NVIDIADLSServiceInstance {
                 $splat.Add('Server', $Server)
             }
 
-            $connection = Get-ServerConnection @splat
-
-            if ($connection.SkipCertificateCheck -eq $true) {
-                $splat.Add('SkipCertificateCheck', $true)
-            }            
+            $connection = Get-NVDLSConnection @splat        
 
             $headers = @{
                 'Authorization' = ('Bearer {0}' -f $connection.token)
@@ -53,7 +56,7 @@ function Get-NVIDIADLSServiceInstance {
         try {
             $uri = ('https://{0}/service_instance_manager/v1/service-instance' -f $connection.Server)
 
-            $response = Invoke-RestMethod -Method Get -Uri $uri -Headers $headers @splat
+            $response = Invoke-RestMethod -Method Get -Uri $uri -Headers $headers
 
             if ($null -eq $response) {
                 throw $_

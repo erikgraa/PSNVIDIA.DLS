@@ -43,13 +43,13 @@ Install-Module -Name PSNVIDIA.DLS
 # Login with the DLS administrator account - the default username is dls_admin
 $credential = Get-Credential
 
-Connect-NVIDIADLSServiceInstance -Server 'dls.fqdn' -Credential $credential
+Connect-NVDLS -Server 'dls.fqdn' -Credential $credential
 ```
 
 ### Retrieve service instance information
 
 ```powershell
-Get-NVIDIADLSServiceInstance
+Get-NVDLSInstance
 ```
 
 ### Generate client configuration token
@@ -58,22 +58,22 @@ Get-NVIDIADLSServiceInstance
 > Unless the Path parameter is passed, the file with the token will end up in the current working directory.
 
 ```powershell
-New-NVIDIADLSClientConfigurationToken -Path C:\Tokens -PassThru
+New-NVDLSClientConfigurationToken -Path C:\Tokens -PassThru
 ```
 
 Optionally with a specific expiration date, e.g. 3 months:
 
 ```powershell
-New-NVIDIADLSClientConfigurationToken -Expiry (Get-Date).AddMonths(3)
+New-NVDLSClientConfigurationToken -Expiry (Get-Date).AddMonths(3)
 ```
 
 ### Disconnect from NVIDIA DLS
 
 ```powershell
-Disconnect-NVIDIADLSServiceInstance
+Disconnect-NVDLS
 ```
 
 ## ✨ Credits
 
 > [!NOTE]
-> This module is unofficial and not supported by NVIDIA in any way
+> This PowerShell module is unofficial and not supported by NVIDIA in any way

@@ -5,8 +5,14 @@
     .DESCRIPTION
     Disconnects from a NVIDIA DLS service instance.
 
+    .PARAMETER Server
+    Specifies the NVIDIA DLS service instance.    
+
     .EXAMPLE
-    Disconnect-NVIDIADLSServiceInstance -Server 'nls.fqdn'
+    Disconnect-NVDLS    
+
+    .EXAMPLE
+    Disconnect-NVDLS -Server 'dls.fqdn'    
 
     .NOTES
     Tested on NVIDIA DLS 3.5.0.
@@ -18,7 +24,7 @@
     https://ui.licensing.nvidia.com/api-doc/dls-api-docs.html
 #>
 
-function Disconnect-NVIDIADLSServiceInstance {
+function Disconnect-NVDLS {
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'High')]
     param (
         [Parameter(Mandatory = $false)]
