@@ -47,7 +47,9 @@ function Connect-NVDLS {
     begin {
         try {
             if ($PSEdition -eq 'Core') {
-                $PSDefaultParameterValues.Add('Invoke-RestMethod:SkipCertificateCheck', $SkipCertificateCheck)
+                if (-not(($PSDefaultParameterValues.Get_Item('Invoke-RestMethod:SkipCertificateCheck')))) {
+                    $PSDefaultParameterValues.Add('Invoke-RestMethod:SkipCertificateCheck', $SkipCertificateCheck)
+                }
             }
 
             $headers = @{ 'Content-Type' = 'application/json' }

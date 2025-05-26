@@ -4,9 +4,9 @@
 ![PowerShell Gallery Downloads](https://img.shields.io/powershellgallery/dt/PSNVIDIA.DLS?label=PowerShell%20Gallery&color=green)
 ![PowerShell Gallery Version](https://img.shields.io/powershellgallery/v/PSNVIDIA.DLS?color=green)
 
-> This PowerShell module lets one accomplish various tasks with the NVIDIA Delegated License Service (DLS)
+> This PowerShell module lets one accomplish various tasks with the NVIDIA Delegated License Service (DLS) and is available in [the PowerShell Gallery](https://www.powershellgallery.com/packages/PSNVIDIA.DLS)
 
-> [!TIP]
+> [!TIP]  
 > Read the related blog post at https://blog.graa.dev/PowerShell-NVIDIADLS
 
 ## 🚀 Features 
@@ -54,14 +54,14 @@ Get-NVDLSInstance
 
 ### Generate client configuration token
 
-> [!NOTE]
-> Unless the Path parameter is passed, the file with the token will end up in the current working directory.
+> [!NOTE]  
+> Unless the Path parameter is passed, the file with the token will end up in the current working directory
 
 ```powershell
 New-NVDLSClientConfigurationToken -Path C:\Tokens -PassThru
 ```
 
-Optionally with a specific expiration date, e.g. 3 months:
+Optionally create a token with a specific expiration date, e.g. 3 months from today:
 
 ```powershell
 New-NVDLSClientConfigurationToken -Expiry (Get-Date).AddMonths(3)
@@ -73,7 +73,13 @@ New-NVDLSClientConfigurationToken -Expiry (Get-Date).AddMonths(3)
 Disconnect-NVDLS
 ```
 
+## 🙌 Contributing
+
+Any contributions are welcome and appreciated!
+
+Please do so by forking the project and opening a pull request!
+
 ## ✨ Credits
 
-> [!NOTE]
+> [!NOTE]  
 > This PowerShell module is unofficial and not supported by NVIDIA in any way

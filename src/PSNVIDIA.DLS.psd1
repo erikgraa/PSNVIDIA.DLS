@@ -9,7 +9,7 @@
 @{
     RootModule = 'PSNVIDIA.DLS.psm1'
 
-    ModuleVersion = '0.2505.2'
+    ModuleVersion = '0.2505.3'
 
     CompatiblePSEditions = @('Core')
 
